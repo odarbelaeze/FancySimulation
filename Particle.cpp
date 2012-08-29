@@ -1,5 +1,7 @@
 #include "Particle.hpp"
 
+#include <cassert>
+
 /*
     Creates a null instance of Particle.
 */
@@ -8,13 +10,29 @@ Particle::Particle() {
 
 }
 
-Particle::Particle(Vec pos){
+/*
+	Creates a Particle instance with a given pos
+*/
 
+Particle::Particle(Vec pos){
+	assert(pos.size() == 3);
+	this.pos = pos;
 }
+
+/* 
+	Creates a Particle instance with a type and a given position
+*/
 
 Particle::Particle(string id, Vec pos){
+	assert(pos.size() == 3);
+	this.id = id;
+	this.pos = pos;
 
 }
+
+/*
+	Creates a Particle instance with a given position and a given spin
+*/
 
 Particle::Particle(Vec pos, Vec s){
 

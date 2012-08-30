@@ -1,5 +1,7 @@
 #include "Particle.hpp"
 
+#include <cstdlib>
+#include <cmath>
 #include <exception>
 
 /*
@@ -61,62 +63,89 @@ Particle::~Particle(){
 
 }
 
+/*
+    Returns the norm of the Particle's spin.
+*/
+
 
 double Particle::spinNorm(){
-
+    return sqrt(pow(s, 2).sum());
 }
 
 /*
-    Creates a Particle instance with a given norm and a given r
+    Returns a vector derived from the spin vector with
+    norm norm by adding a random vector of norm r.
 */
 
 Vec Particle::randSpin(double norm, double r){
     if (norm < 0) throw exception();
     if (r < 0) throw exception();
-    this.norm = norm;
-    this.r = r;
 
+    Vec r_xyz(0.0, 3);
+    double theta = (double) rand() * 1.0 * M_PI / RAND_MAX;
+    double phi   = (double) rand() * 2.0 * M_PI / RAND_MAX;
+
+    r_xyz[0] = r * sin(theta) * cos(phi);
+    r_xyz[1] = r * sin(theta) * sin(phi);
+    r_xyz[2] = r * cos(theta);
+
+    r_xyz = s + r_xyz;
+    r_xyz = norm * (r_xyz / pow(r_xyz, 2.0).sum());
+
+    return r_xyz;
 }
 
 /*
-    Creates a Particle instance with a given norm
+    Returns a vector derived from the spin vector with
+    norm norm by adding a random vector of norm 1.0.
 */
 
 Vec Particle::cheapRandSpin(double norm){
-    if (norm < 0) throw exception();
-    this.norm = norm;
+    // TODO: Modify
 
 }
 
 /*
-    Creates a Particle instance with a given spin new_s
+    Changes the existing spin to a given new spin new_s.
 */
 
 
 void Particle::changeSpinTo(Vec new_s){
-    if (new_s.size() != 3) throw exception;
-    this.new_s = new_s;
+    // TODO: add exeption throw.
+    this.s = new_s;
+}
+
+/*
+    Changes the temporal spin st of the particle to a new one
+    using the private method randSpin(double, double) with 
+    norm spinNorm() and r = r.
+*/
+
+void Particle::changeSpin(double r){
+    this.st = randSpin(spinNorm(), r);
+    // TODO: review with exeptions
 
 }
 
 /*
-    Creates a Particle instance with a given r
+    Changes the temporal spin st of the particle to a new one
+    using the private method randSpin(double) with 
+    norm spinNorm().
 */
-
-void Particle::changeSpin(double r){
-    if (r < 0) throw exception;
-    this.r = r;
-
-
-}
 
 void Particle::cheapChangeSpin(){
 
 }
 
-void Particle::commitSpin(){
+/*
+    Changes the actual spin s to the temporal one s;
+*/
 
+void Particle::commitSpin(){
+    this.s = this.st;
 }
+
+// TODO: change comments and actualize code from here!
 
 /*
     Creates a Particle instance with a given position new_pos
@@ -150,7 +179,7 @@ Vec Particle::getSpin(){
 }
 
 Vec Particle::getTemporalSpin(){
-
+    return this.st;
 }
 
 string Particle::getId(){

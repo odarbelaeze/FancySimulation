@@ -1,10 +1,12 @@
 #include "System.hpp"
 #include "Particle.hpp"
 
+#include <exception>
+
 using namespace std;
 
 /*
-    TODO: Coment & implement
+    Creates a null instance of System.
 */
 
 System::System(){
@@ -12,7 +14,7 @@ System::System(){
 }
 
 /*
-    TODO: Coment & implement
+    Creates a whole System instance from a JSON file.
 */
 
 System::System(ifstream& file){
@@ -20,7 +22,7 @@ System::System(ifstream& file){
 }
 
 /*
-    TODO: Coment & implement
+    The method that is called when a System instance gets deleted.
 */
 
 System::~System(){
@@ -28,7 +30,7 @@ System::~System(){
 }
 
 /*
-    TODO: Coment & implement
+    Returns the actual energy of the system using the Hamiltonian.
 */
 
 double System::energy(){
@@ -36,7 +38,8 @@ double System::energy(){
 }
 
 /*
-    TODO: Coment & implement
+    Returns the contribution of the ith particle to the total energi
+    asumming that E_tot = sum E_i for all i.
 */
 
 double System::energy(int i){
@@ -44,7 +47,8 @@ double System::energy(int i){
 }
 
 /*
-    TODO: Coment & implement
+    Return the total Systems magnetization given by the vector sum of every
+    Particle's spin.
 */
 
 Vec System::magnetization(){
@@ -52,17 +56,20 @@ Vec System::magnetization(){
 }
 
 /*
-    TODO: Coment & implement
+    Estabilizes the system at a given magnetic field intensity H in meV
+    and a given thermal energy k_BT in meV using mcs Monte Carlo steeps.
 */
 
-void System::estabilizeAt(Vec B, double T, int mcs){
+void System::estabilizeAt(Vec H, double T, int mcs){
 
 }
 
 /*
-    TODO: Coment & implement
+    Measures the system's observables at a given magnetic field intensity H 
+    in meV and a given thermal energy k_BT in meV and returns a 
+    vector<MacroState> through for all the mcs Monte Carlo steeps.
 */
 
-void System::measureAt(Vec B, double T, int mcs){
+vector<MacroState> System::measureAt(Vec H, double T, int mcs){
 
 }

@@ -39,8 +39,8 @@ public:
     System(ifstream& file);
     ~System();
 
-    void estabilizeAt(Vec B, double T, int mcs);
-    void measureAt(Vec B, double T, int mcs);
+    void estabilizeAt(Vec H, double k_BT, int mcs);
+    vector<MacroState> measureAt(Vec H, double k_BT, int mcs);
 };
 
 #endif

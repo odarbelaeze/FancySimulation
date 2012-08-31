@@ -97,10 +97,11 @@ Vec Particle::randSpin(double norm, double r){
 
 /*
     Returns a vector derived from the spin vector with
-    norm norm by adding a random vector of norm 1.0.
+    norm by adding a random vector of norm 1.0.
 */
 
 Vec Particle::cheapRandSpin(double norm){
+
     // TODO: Modify
 
 }
@@ -111,8 +112,8 @@ Vec Particle::cheapRandSpin(double norm){
 
 
 void Particle::changeSpinTo(Vec new_s){
-    // TODO: add exeption throw.
-    this.s = new_s;
+    if (new_s.size() != 3) throw exception();
+    this.s = new_s; 
 }
 
 /*
@@ -122,6 +123,7 @@ void Particle::changeSpinTo(Vec new_s){
 */
 
 void Particle::changeSpin(double r){
+    if (r < 0) throw exception();
     this.st = randSpin(spinNorm(), r);
     // TODO: review with exeptions
 
@@ -134,6 +136,7 @@ void Particle::changeSpin(double r){
 */
 
 void Particle::cheapChangeSpin(){
+
 
 }
 
@@ -148,7 +151,7 @@ void Particle::commitSpin(){
 // TODO: change comments and actualize code from here!
 
 /*
-    Creates a Particle instance with a given position new_pos
+    Change the position to a new_pos
 */
 
 void Particle::moveTo(Vec new_pos){
@@ -157,12 +160,21 @@ void Particle::moveTo(Vec new_pos){
 
 }
 
+/*
+    Change the position to a delta_pos
+*/
+
+// Aca no sería moveTo(Vec delta_pos)  ?
+
 void Particle::move(Vec delta_pos){
     if (delta_pos.size() != 3) throw exception;
     this.delta_pos = delta_pos;
 
 }
 
+/*
+    Set the id
+*/
 
 void Particle::setId(string id){
     this.id = id;
@@ -170,18 +182,36 @@ void Particle::setId(string id){
 }
 
 
-Vec Particle::getPos(){
+/*
+    get the position of the particle
+*/
 
+Vec Particle::getPos(){
+    return this.pos;
 }
+
+/*
+    Get the spin of the particle
+*/
 
 Vec Particle::getSpin(){
+    return this.s;
 
 }
+
+/*
+    Get the TemporalSpin of the particle
+*/
 
 Vec Particle::getTemporalSpin(){
     return this.st;
 }
 
+/*
+    Get the id
+*/
+
 string Particle::getId(){
+    return this.id;
 
 }

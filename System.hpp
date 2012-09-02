@@ -3,10 +3,9 @@
 
 #include "Particle.hpp"
 #include <fstream>
-#include <veector>
+#include <vector>
 
 using namespace std;
-
 
 struct Interaction
 {
@@ -30,8 +29,9 @@ private:
     vector<vector<Interaction> > interactions;
     vector<Vec> anisotropy;
 
-    double energy();
-    double energy(int i);
+    double energy(Vec H);
+    double energy(int i, Vec H);
+    double energyDelta(int i, Vec H);
     Vec magnetization();
 
 public:
@@ -39,7 +39,7 @@ public:
     System(ifstream& file);
     ~System();
 
-    void estabilizeAt(Vec H, double k_BT, int mcs);
+    vector<double> estabilizeAt(Vec H, double k_BT, int mcs);
     vector<MacroState> measureAt(Vec H, double k_BT, int mcs);
 };
 

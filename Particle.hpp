@@ -44,8 +44,6 @@ public:
     Vec getSpin();
     Vec getTemporalSpin();
     string getId();
-
-    /* data */
 };
 
 #endif

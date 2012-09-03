@@ -1,6 +1,7 @@
 #include "System.hpp"
 #include "Particle.hpp"
 
+#include <json/json.h>
 #include <exception>
 #include <cstdlib>
 #include <ctime>
@@ -21,7 +22,10 @@ System::System(){
 */
 
 System::System(ifstream& file){
-
+    Json::Value root;
+    Json::Reader reader;
+    bool parsing_success = reader.parse(file, root);
+    if (!parsing_success) throw exception();
 }
 
 /*

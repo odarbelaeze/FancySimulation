@@ -69,7 +69,7 @@ Particle::~Particle(){
 
 
 double Particle::spinNorm(){
-    return sqrt(pow(s, 2.0).sum());
+    return sqrt(pow(this->s, 2.0).sum());
 }
 
 /*

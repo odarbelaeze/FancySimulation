@@ -26,6 +26,9 @@ System::System(ifstream& file){
     Json::Reader reader;
     bool parsing_success = reader.parse(file, root);
     if (!parsing_success) throw exception();
+
+    
+    
 }
 
 /*

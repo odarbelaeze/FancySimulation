@@ -29,7 +29,16 @@
 \index_command default
 \paperfontsize default
 \spacing single
-\use_hyperref false
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -76,6 +85,12 @@ Particle system descriptors
 \end_layout
 
 \begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Explicit-particles"
+
+\end_inset
+
 Explicit particles
 \end_layout
 
@@ -87,7 +102,7 @@ status open
 
 
 \backslash
-begin{lstlisting}[numbers = right]
+begin{lstlisting}[numbers = none]
 \end_layout
 
 \begin_layout Plain Layout
@@ -130,6 +145,12 @@ reference "sub:Anisotropy-options"
 \end_layout
 
 \begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Multi-layer-descriptors"
+
+\end_inset
+
 Multi layer descriptors
 \end_layout
 
@@ -141,7 +162,7 @@ status open
 
 
 \backslash
-begin{lstlisting}[numbers = right]
+begin{lstlisting}[numbers = none]
 \end_layout
 
 \begin_layout Plain Layout
@@ -194,6 +215,47 @@ name "sub:Spin-options"
 Spin options
 \end_layout
 
+\begin_layout Standard
+It can be 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+random
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+ (default) or 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+explicit
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+ in random you must give the norm with the particle object descriptor using
+ the property 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+s
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+ in the second case you must give a vector in that property.
+\end_layout
+
 \begin_layout Subsection
 \begin_inset CommandInset label
 LatexCommand label
@@ -202,6 +264,62 @@ name "sub:Anisotropy-options"
 \end_inset
 
 Anisotropy options
+\end_layout
+
+\begin_layout Standard
+I can be 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+global
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ (default), 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+random
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+ or 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+explicit
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+, in global an anisotropy vector (magnitude plus direction) is given using
+ the attribute 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+k
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+, in random anisotropy is given just its magnitude as double then the program
+ picks a random direction finally in explicit anisotropy a vector must be
+ given in each particle object descriptor in the file, its useful for multilayer
+ descriptors.
 \end_layout
 
 \begin_layout Section

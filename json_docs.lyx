@@ -1,0 +1,228 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{listings}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+JSON Input file documentation
+\end_layout
+
+\begin_layout Author
+FancySimulation team
+\end_layout
+
+\begin_layout Section
+Particle system descriptors
+\end_layout
+
+\begin_layout Subsection
+Explicit particles
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[numbers = right]
+\end_layout
+
+\begin_layout Plain Layout
+
+"system_descriptor": "explicit particles"
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Explicit particles requires a explicit list of particle objects that at
+ least includes the position of each particle, its id, some option for the
+ spin (See 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "sub:Spin-options"
+
+\end_inset
+
+) and some option for the anisotropy (See 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "sub:Anisotropy-options"
+
+\end_inset
+
+).
+ The constructor doesn't make any calculation more than serializing the
+ particles from the JSON file.
+\end_layout
+
+\begin_layout Subsection
+Multi layer descriptors
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}[numbers = right]
+\end_layout
+
+\begin_layout Plain Layout
+
+"system_descriptor": "multilayer"
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is an useful option for creating particle systems, it requires a full
+ list of layer object descriptors, one for each layer wanted.
+ Each layer requires the number unit cells in width (
+\begin_inset Formula $x$
+\end_inset
+
+ axis), height (
+\begin_inset Formula $y$
+\end_inset
+
+ axis) and length (
+\begin_inset Formula $z$
+\end_inset
+
+ axis), the lattice parameter 
+\begin_inset Formula $a$
+\end_inset
+
+ in the desired unit (one by default.) the origin as an array and the list
+ of particle objects representing the basis.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Spin-options"
+
+\end_inset
+
+Spin options
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Anisotropy-options"
+
+\end_inset
+
+Anisotropy options
+\end_layout
+
+\begin_layout Section
+Interaction descriptors
+\end_layout
+
+\begin_layout Subsection
+Some magnetic property
+\end_layout
+
+\begin_layout Subsection
+Constant interaction
+\end_layout
+
+\begin_layout Subsection
+Cases environment
+\end_layout
+
+\begin_layout Subsection
+Random interaction
+\end_layout
+
+\end_body
+\end_document

@@ -27,7 +27,42 @@ System::System(ifstream& file){
     bool parsing_success = reader.parse(file, root);
     if (!parsing_success) throw exception();
 
-    
+    string system_descriptor = root.get(
+        "system_descriptor", 
+        "explicit particles"
+    ).asString();
+
+    string spin_option = root.get(
+        "spin", "random"
+    ).asString();
+
+    string anysotropy_option = root.get(
+        "anysotropy", "global"
+    ).asString();
+
+    string interaction_descriptor = root.get(
+        "interaction_descriptor", "smp"
+    ).asString();
+
+    double cut_off = root.get(
+        "rc", 1.0
+    ).asDouble();
+
+    Vec pos(root["pos"], 3);
+
+    if (system_descriptor == "explicit particles")
+    {
+        cout << "OMG using explicit particles," << endl
+             << spin_option << "for the spin and" << endl
+             << anysotropy_option << "for the anysotropy" << endl;
+    }
+    else if (system_descriptor == "multilayer") 
+    {
+        cout << "OMG using multilayer," << endl
+             << spin_option << " for the spin and" << endl
+             << anysotropy_option << " for the anysotropy" << endl;
+    }
+
     
 }
 

@@ -1,0 +1,19 @@
+// Root object.
+
+{
+	"system_descriptor": "multilayer",
+	"spin": "explicit",
+	"anisotropy": "random",
+	"pos": [0,0,0],
+	"layers": [
+		{
+			"w": 10, "h": 10, "l": 10, "origin": [0, 0, 0],
+			"basis": [
+				{
+					"id": "FM",
+					"pos": [0,0,0]
+				}
+			]
+		}
+	]
+}

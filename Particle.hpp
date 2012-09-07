@@ -23,6 +23,7 @@ private:
 
 public:
     Particle();
+    Particle(Particle const& other);
     Particle(Vec pos);
     Particle(string id, Vec pos);
     Particle(Vec pos, Vec s);

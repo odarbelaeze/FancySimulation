@@ -7,7 +7,40 @@
 #include <ctime>
 #include <cmath>
 
+#define DEBUG
+
 using namespace std;
+
+/*
+    Use this carefully.
+*/
+
+Vec vson(Json::Value& v_json){
+    Vec vec(0.0, v_json.size());
+    for (int i = 0; i < v_json.size(); ++i)
+    {
+        vec[i] = v_json[i].asDouble();
+    }
+    return vec;
+}
+
+double rand_val() {
+    return (double) rand() * 1.0 / RAND_MAX;
+}
+
+Vec rand_vec(){
+
+    double theta = (double) rand() * 1.0 * M_PI / RAND_MAX;
+    double phi   = (double) rand() * 2.0 * M_PI / RAND_MAX;
+
+    double r_xyz[] = {
+        sin(theta) * cos(phi),
+        sin(theta) * sin(phi),
+        cos(theta)
+    };
+
+    return Vec(r_xyz, 3);
+}
 
 /*
     Creates a null instance of System.
@@ -22,6 +55,7 @@ System::System(){
 */
 
 System::System(ifstream& file){
+
     Json::Value root;
     Json::Reader reader;
     bool parsing_success = reader.parse(file, root);
@@ -32,35 +66,119 @@ System::System(ifstream& file){
         "explicit particles"
     ).asString();
 
-    string spin_option = root.get(
-        "spin", "random"
-    ).asString();
-
-    string anysotropy_option = root.get(
-        "anysotropy", "global"
+    string anisotropy_option = root.get(
+        "anisotropy", "global"
     ).asString();
 
     string interaction_descriptor = root.get(
         "interaction_descriptor", "smp"
     ).asString();
 
+    vector<double> smps;
+
     double cut_off = root.get(
         "rc", 1.0
     ).asDouble();
 
-    Vec pos(root["pos"], 3);
-
     if (system_descriptor == "explicit particles")
     {
-        cout << "OMG using explicit particles," << endl
-             << spin_option << "for the spin and" << endl
-             << anysotropy_option << "for the anysotropy" << endl;
+        Json::Value j_parts = root["particles"];
+        Particle p_template;
+        if (!j_parts.isArray() || j_parts.empty()) throw exception();
+
+        for (int i = 0; i < j_parts.size(); ++i)
+        {
+            p_template.setId(j_parts[i]["id"].asString());
+            p_template.moveTo(vson(j_parts[i]["pos"]));
+            if (j_parts[i]["s"].isDouble()) 
+            {
+                p_template.changeSpinTo(j_parts[i]["s"].asDouble() * rand_vec());
+                p_template.commitSpin();
+            }
+            else if (j_parts[i]["s"].isArray())
+            {
+                p_template.changeSpinTo(vson(j_parts[i]["s"]));
+                p_template.commitSpin();
+            }
+            else throw exception();
+
+            if (anisotropy_option == "global") 
+                this->anisotropy.push_back(vson(root["k"]));
+            else if (anisotropy_option == "random")
+            {
+                if (j_parts[i].isMember("k"))
+                    this->anisotropy.push_back(j_parts[i]["k"].asDouble() * rand_vec());
+                else
+                    this->anisotropy.push_back(root["k"].asDouble() * rand_vec());
+            }
+            else if (anisotropy_option == "explicit")
+                this->anisotropy.push_back(vson(j_parts[i]["k"]));
+
+            if (interaction_descriptor == "smp") 
+                smps.push_back(j_parts[i]["smp"].asDouble());
+
+            this->particles.push_back(p_template);
+
+#ifdef DEBUG
+            cout << this->particles.size() << endl;
+#endif
+        }
+
+
     }
     else if (system_descriptor == "multilayer") 
     {
-        cout << "OMG using multilayer," << endl
-             << spin_option << " for the spin and" << endl
-             << anysotropy_option << " for the anysotropy" << endl;
+        Json::Value layers = root["layers"];
+        Particle p_template;
+        if (!layers.isArray() || layers.size() == 0) throw exception();
+        for (int i = 0; i < layers.size(); ++i)
+        {
+            int w = layers[i].get("w", 1);
+            int h = layers[i].get("h", 1);
+            int l = layers[i].get("l", 1);
+        }
+    }
+    else throw exception();
+
+    this->interactions.resize(this->particles.size());
+
+#ifdef DEBUG
+    cout << this->interactions.size() << endl;
+#endif
+
+    for (int i = 0; i < this->particles.size(); ++i)
+    {
+        for (int j = i + 1; j < this->particles.size(); ++j)
+        {
+            Particle p = this->particles.at(i);
+            Particle q = this->particles.at(j);
+            Interaction inter;
+
+            double d = sqrt(pow(p.getPos() - q.getPos(), 2.0).sum());
+
+            if (d > cut_off) continue;
+
+#ifdef DEBUG
+            cout << "Adding asociation: (" << i << ", " << j << ")" << endl;
+#endif
+
+            inter.ref = j;
+            inter.d = d;
+
+            if (interaction_descriptor == "smp") 
+                inter.J_ex = smps[i] + smps[j];
+            else if (interaction_descriptor == "constant")
+                inter.J_ex = root["J_ex"].asDouble();
+            else if (interaction_descriptor == "cases")
+                inter.J_ex = root["J_ex"][p.getId() + q.getId()].asDouble();
+            else if (interaction_descriptor == "random")
+                inter.J_ex = root["J_ex"].asDouble() * rand_val();
+            else throw exception();
+
+            this->interactions[i].push_back(inter);
+            inter.ref = i;
+            this->interactions[j].push_back(inter);
+        }
     }
 
     
@@ -113,7 +231,7 @@ double System::energy(int i, Vec H){
     }
 
     /*
-        Energy due to magnetocrystaline anysotropy.
+        Energy due to magnetocrystaline anisotropy.
     */
 
     e -= (this->particles.at(i).getSpin() * this->anisotropy.at(i)).sum();
@@ -154,7 +272,7 @@ double System::energyDelta(int i, Vec H){
     }
 
     /*
-        Energy due to magnetocrystaline anysotropy.
+        Energy due to magnetocrystaline anisotropy.
     */
 
     temporalEnergy -= (this->particles.at(i).getTemporalSpin() * 

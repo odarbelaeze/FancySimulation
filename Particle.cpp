@@ -12,6 +12,18 @@ Particle::Particle() {
 
 }
 
+
+/*
+    Copy constructor.
+*/
+
+Particle::Particle(Particle const& other){
+    this->id = other.id;
+    this->pos = other.pos;
+    this->s = other.s;
+    this->st = other.st;
+}
+
 /*
     Creates a Particle instance with a given pos
 */

@@ -17,11 +17,17 @@ Particle::Particle() {
     Copy constructor.
 */
 
-Particle::Particle(Particle const& other){
-    this->id = other.id;
-    this->pos = other.pos;
-    this->s = other.s;
-    this->st = other.st;
+Particle::Particle(string id, float norm_s){
+    this -> id = id;
+
+    double theta = (double) rand() * 1.0 * M_PI / RAND_MAX;
+    double phi   = (double) rand() * 2.0 * M_PI / RAND_MAX;
+
+    this -> s[0] = norm_s * sin(theta) * cos(phi);
+    this -> s[1] = norm_s * sin(theta) * sin(phi);
+    this -> s[2] = norm_s * cos(theta);
+
+    this -> st = this -> s;
 }
 
 /*
@@ -30,7 +36,7 @@ Particle::Particle(Particle const& other){
 
 Particle::Particle(Vec pos){
     if (pos.size() != 3) throw exception();
-    this->pos = pos;
+    this -> pos = pos;
 }
 
 /* 
@@ -39,8 +45,8 @@ Particle::Particle(Vec pos){
 
 Particle::Particle(string id, Vec pos){
     if (pos.size() != 3) throw exception();
-    this->id = id;
-    this->pos = pos;
+    this -> id = id;
+    this -> pos = pos;
 
 }
 
@@ -51,8 +57,8 @@ Particle::Particle(string id, Vec pos){
 Particle::Particle(Vec pos, Vec s){
     if (pos.size() != 3) throw exception();
     if (s.size() != 3) throw exception();
-    this->pos = pos;
-    this->s = s;
+    this -> pos = pos;
+    this -> s = s;
 
 
 }
@@ -64,9 +70,9 @@ Particle::Particle(Vec pos, Vec s){
 Particle::Particle(string id, Vec pos, Vec s){
     if (pos.size() != 3) throw exception();
     if (s.size() != 3) throw exception();
-    this->id = id;
-    this->pos = pos;
-    this->s = s;
+    this -> id = id;
+    this -> pos = pos;
+    this -> s = s;
 
 }
 
@@ -81,7 +87,7 @@ Particle::~Particle(){
 
 
 double Particle::spinNorm(){
-    return sqrt(pow(this->s, 2.0).sum());
+    return sqrt(pow(this -> s, 2.0).sum());
 }
 
 /*
@@ -136,7 +142,7 @@ Vec Particle::cheapRandSpin(double norm){
 
 void Particle::changeSpinTo(Vec new_s){
     if (new_s.size() != 3) throw exception();
-    this->st = new_s; 
+    this -> st = new_s; 
 }
 
 /*
@@ -147,7 +153,7 @@ void Particle::changeSpinTo(Vec new_s){
 
 void Particle::changeSpin(double r){
     if (r < 0) throw exception();
-    this->st = randSpin(spinNorm(), r);
+    this -> st = randSpin(spinNorm(), r);
 }
 
 /*
@@ -157,7 +163,7 @@ void Particle::changeSpin(double r){
 */
 
 void Particle::cheapChangeSpin(){
-    this->st = cheapRandSpin(spinNorm());
+    this -> st = cheapRandSpin(spinNorm());
 }
 
 /*
@@ -165,7 +171,7 @@ void Particle::cheapChangeSpin(){
 */
 
 void Particle::commitSpin(){
-    this->s = this->st;
+    this -> s = this -> st;
 }
 
 /*
@@ -174,7 +180,7 @@ void Particle::commitSpin(){
 
 void Particle::moveTo(Vec new_pos){
     if (new_pos.size() != 3) throw exception();
-    this->pos = new_pos;
+    this -> pos = new_pos;
 
 }
 
@@ -184,7 +190,7 @@ void Particle::moveTo(Vec new_pos){
 
 void Particle::move(Vec delta_pos){
     if (delta_pos.size() != 3) throw exception();
-    this->pos = this->pos + delta_pos;
+    this -> pos = this -> pos + delta_pos;
 
 }
 
@@ -193,7 +199,7 @@ void Particle::move(Vec delta_pos){
 */
 
 void Particle::setId(string id){
-    this->id = id;
+    this -> id = id;
 
 }
 
@@ -203,7 +209,7 @@ void Particle::setId(string id){
 */
 
 Vec Particle::getPos(){
-    return this->pos;
+    return this -> pos;
 }
 
 /*
@@ -211,7 +217,7 @@ Vec Particle::getPos(){
 */
 
 Vec Particle::getSpin(){
-    return this->s;
+    return this -> s;
 
 }
 
@@ -220,7 +226,7 @@ Vec Particle::getSpin(){
 */
 
 Vec Particle::getTemporalSpin(){
-    return this->st;
+    return this -> st;
 }
 
 /*
@@ -228,6 +234,6 @@ Vec Particle::getTemporalSpin(){
 */
 
 string Particle::getId(){
-    return this->id;
+    return this -> id;
 
 }

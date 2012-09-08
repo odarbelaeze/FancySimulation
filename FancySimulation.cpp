@@ -15,7 +15,8 @@ int main(int argc, char *argv[])
 
 	cout << endl;
 	for (int i = 0; i < 100; i++){
-		vector<MacroState> ms = s_magnetic.measureAt(B, t, 500);
+		s_magnetic.estabilizeAt(B, t, 5000);
+		vector<MacroState> ms = s_magnetic.measureAt(B, t, 5000);
 		cout << i + 1 << " de 100 Completados." << endl;
 	}
     cout << endl;

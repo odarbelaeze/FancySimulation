@@ -58,6 +58,12 @@ System::System(ifstream& file){
 
     Json::Value root;
     Json::Reader reader;
+
+    vector<Particle> particles;
+    vector<vector<Interaction> > interactions;
+    vector<Vec> anisotropy;
+
+
     bool parsing_success = reader.parse(file, root);
     if (!parsing_success) {
         cout << "Parsing not success." << endl
@@ -107,24 +113,24 @@ System::System(ifstream& file){
             else throw exception();
 
             if (anisotropy_option == "global") 
-                this->anisotropy.push_back(vson(root["k"]));
+                anisotropy.push_back(vson(root["k"]));
             else if (anisotropy_option == "random")
             {
                 if (j_parts[i].isMember("k"))
-                    this->anisotropy.push_back(j_parts[i]["k"].asDouble() * rand_vec());
+                    anisotropy.push_back(j_parts[i]["k"].asDouble() * rand_vec());
                 else
-                    this->anisotropy.push_back(root["k"].asDouble() * rand_vec());
+                    anisotropy.push_back(root["k"].asDouble() * rand_vec());
             }
             else if (anisotropy_option == "explicit")
-                this->anisotropy.push_back(vson(j_parts[i]["k"]));
+                anisotropy.push_back(vson(j_parts[i]["k"]));
 
             if (interaction_descriptor == "smp") 
                 smps.push_back(j_parts[i]["smp"].asDouble());
 
-            this->particles.push_back(p_template);
+            particles.push_back(p_template);
 
 #ifdef DEBUG
-            cout << this->particles.size() << endl;
+            cout << particles.size() << endl;
 #endif
         }
 
@@ -171,24 +177,24 @@ System::System(ifstream& file){
                                 else throw exception();
 
                                 if (anisotropy_option == "global") 
-                                    this->anisotropy.push_back(vson(layers[layer]["k"]));
+                                    anisotropy.push_back(vson(layers[layer]["k"]));
                                 else if (anisotropy_option == "random")
                                 {
                                     if (basis[p].isMember("k"))
-                                        this->anisotropy.push_back(basis[p]["k"].asDouble() * rand_vec());
+                                        anisotropy.push_back(basis[p]["k"].asDouble() * rand_vec());
                                     else
-                                        this->anisotropy.push_back(layers[layer]["k"].asDouble() * rand_vec());
+                                        anisotropy.push_back(layers[layer]["k"].asDouble() * rand_vec());
                                 }
                                 else if (anisotropy_option == "explicit")
-                                    this->anisotropy.push_back(vson(basis[p]["k"]));
+                                    anisotropy.push_back(vson(basis[p]["k"]));
 
                                 if (interaction_descriptor == "smp") 
                                     smps.push_back(basis[p]["smp"].asDouble());
 
-                                this->particles.push_back(p_template);
+                                particles.push_back(p_template);
 
                     #ifdef DEBUG
-                                cout << this->particles.size() << " at " 
+                                cout << particles.size() << " at " 
                                      << p_template.getPos()[0] << " "
                                      << p_template.getPos()[1] << " "
                                      << p_template.getPos()[2] << " "
@@ -203,29 +209,42 @@ System::System(ifstream& file){
     }
     else throw exception();
 
-    this->interactions.resize(this->particles.size());
+    this -> n = particles.size();
+    this -> nInteractions = new int[this -> n];
+    this -> interactions = new Interaction*[this -> n];
+    this -> anisotropy = new Vec[this -> n];
+    this -> particles = new Particle[this -> n];
 
-#ifdef DEBUG
-    cout << this->interactions.size() << endl;
-#endif
-
-    for (int i = 0; i < this->particles.size(); ++i)
+    for (int i = 0; i < this -> n; ++i)
     {
-        for (int j = i + 1; j < this->particles.size(); ++j)
+        this -> particles[i] = particles[i];
+        this -> anisotropy[i] = anisotropy[i];
+    }
+
+    interactions.resize(particles.size());
+
+
+    #ifdef DEBUG
+        cout << interactions.size() << endl;
+    #endif
+
+    for (int i = 0; i < particles.size(); ++i)
+    {
+        for (int j = i + 1; j < particles.size(); ++j)
         {
-            Particle p = this->particles.at(i);
-            Particle q = this->particles.at(j);
+            Particle* p = &this -> particles[i];
+            Particle* q = &this -> particles[j];
             Interaction inter;
 
-            double d = sqrt(pow(p.getPos() - q.getPos(), 2.0).sum());
+            double d = sqrt(pow(p -> getPos() - q -> getPos(), 2.0).sum());
 
             if (d > cut_off) continue;
 
-#ifdef DEBUG
-            cout << "Adding asociation: (" << i << ", " << j << ")" << endl;
-#endif
+            #ifdef DEBUG
+                cout << "Adding asociation: (" << i << ", " << j << ")" << endl;
+            #endif
 
-            inter.ref = j;
+            inter.ref = q;
             inter.d = d;
 
             if (interaction_descriptor == "smp") 
@@ -233,17 +252,26 @@ System::System(ifstream& file){
             else if (interaction_descriptor == "constant")
                 inter.J_ex = root["J_ex"].asDouble();
             else if (interaction_descriptor == "cases")
-                inter.J_ex = root["J_ex"][p.getId() + q.getId()].asDouble();
+                inter.J_ex = root["J_ex"][p -> getId() + q -> getId()].asDouble();
             else if (interaction_descriptor == "random")
                 inter.J_ex = root["J_ex"].asDouble() * rand_val();
             else throw exception();
 
-            this->interactions[i].push_back(inter);
-            inter.ref = i;
-            this->interactions[j].push_back(inter);
+            interactions[i].push_back(inter);
+            inter.ref = p;
+            interactions[j].push_back(inter);
         }
     }
 
+    for (int i = 0; i < this -> n; ++i)
+    {
+        this -> nInteractions[i] = interactions[i].size();
+        this -> interactions[i] = new Interaction[this -> nInteractions[i]];
+        for (int j = 0; j < this -> nInteractions[i]; ++j)
+        {
+            this -> interactions[i][j] = interactions[i][j];
+        }
+    }
     
 }
 
@@ -264,7 +292,7 @@ double System::energy(Vec H){
     if (H.size() != 3) throw exception();
 
     double e = 0;
-    for (int i = 0; i < this->particles.size(); ++i)
+    for (int i = 0; i < this -> n; ++i)
     {
         e += energy(i, H);
     }
@@ -286,10 +314,10 @@ double System::energy(int i, Vec H){
         Energy due to interactions.
     */
 
-    for (int j = 0; j < this->interactions.at(i).size(); ++j)
+    for (int j = 0; j < this -> nInteractions[i]; ++j)
     {
-        e -= interactions.at(i).at(j).J_ex * (
-            this->particles.at(i).getSpin() * this->particles.at(j).getSpin()
+        e -= interactions[i][j].J_ex * (
+            this -> particles[i].getSpin() * interactions[i][j].ref -> getSpin()
         ).sum();
     }
 
@@ -297,13 +325,13 @@ double System::energy(int i, Vec H){
         Energy due to magnetocrystaline anisotropy.
     */
 
-    e -= (this->particles.at(i).getSpin() * this->anisotropy.at(i)).sum();
+    e -= (this -> particles[i].getSpin() * this -> anisotropy[i]).sum();
 
     /*
         Energy due to Zeeman effect.
     */
 
-    e -= (this->particles.at(i).getSpin() * H).sum();
+    e -= (this->particles[i].getSpin() * H).sum();
 
     return e;
 
@@ -318,7 +346,7 @@ double System::energyDelta(int i, Vec H){
 
     if (H.size() != 3) throw exception();
 
-    this->particles.at(i).cheapChangeSpin();
+    this -> particles[i].cheapChangeSpin();
 
     double temporalEnergy = 0.0;
 
@@ -326,11 +354,11 @@ double System::energyDelta(int i, Vec H){
         Temporal energy due to interactions.
     */
 
-    for (int j = 0; j < this->interactions.at(i).size(); ++j)
+    for (int j = 0; j < this -> nInteractions[i]; ++j)
     {
-        temporalEnergy -= interactions.at(i).at(j).J_ex * (
-            this->particles.at(i).getTemporalSpin() * 
-            this->particles.at(j).getSpin()
+        temporalEnergy -= interactions[i][j].J_ex * (
+            this -> particles[i].getTemporalSpin() * 
+            interactions[i][j].ref -> getSpin()
         ).sum();
     }
 
@@ -338,14 +366,14 @@ double System::energyDelta(int i, Vec H){
         Energy due to magnetocrystaline anisotropy.
     */
 
-    temporalEnergy -= (this->particles.at(i).getTemporalSpin() * 
-            this->anisotropy.at(i)).sum();
+    temporalEnergy -= (this -> particles[i].getTemporalSpin() * 
+            this -> anisotropy[i]).sum();
 
     /*
         Energy due to Zeeman effect.
     */
 
-    temporalEnergy -= (this->particles.at(i).getTemporalSpin() * H).sum();
+    temporalEnergy -= (this -> particles[i].getTemporalSpin() * H).sum();
 
     return temporalEnergy - energy(i, H);
 
@@ -359,9 +387,9 @@ double System::energyDelta(int i, Vec H){
 Vec System::magnetization(){
     Vec mag(0.0, 3);
 
-    for (int i = 0; i < this->particles.size(); ++i)
+    for (int i = 0; i < this -> n; ++i)
     {
-        mag += this->particles.at(i).getSpin();
+        mag += this->particles[i].getSpin();
     }
 
     return mag;
@@ -382,13 +410,13 @@ vector<double> System::estabilizeAt(Vec H, double k_BT, int mcs){
 
     for (int k = 0; k < mcs; ++k)
     {
-        for (int i = 0; i < this->particles.size(); ++i)
+        for (int i = 0; i < this -> n; ++i)
         {
             energy_delta = energyDelta(i, H);
 
             if (energy_delta < 0.0)
             {
-                this->particles.at(i).commitSpin();
+                this->particles[i].commitSpin();
                 current_energy += energy_delta;
             }
             else
@@ -396,7 +424,7 @@ vector<double> System::estabilizeAt(Vec H, double k_BT, int mcs){
                 double r = (double) rand() / RAND_MAX;
                 if (r < exp( - energy_delta / k_BT))
                 {
-                    this->particles.at(i).commitSpin();
+                    this->particles[i].commitSpin();
                     current_energy += energy_delta;
                 }
             }
@@ -426,13 +454,13 @@ vector<MacroState> System::measureAt(Vec H, double k_BT, int mcs){
 
     for (int k = 0; k < mcs; ++k)
     {
-        for (int i = 0; i < this->particles.size(); ++i)
+        for (int i = 0; i < this -> n; ++i)
         {
             energy_delta = energyDelta(i, H);
 
             if (energy_delta < 0.0)
             {
-                this->particles.at(i).commitSpin();
+                this->particles[i].commitSpin();
                 m_state.energy += energy_delta;
             }
             else
@@ -440,7 +468,7 @@ vector<MacroState> System::measureAt(Vec H, double k_BT, int mcs){
                 double r = (double) rand() / RAND_MAX;
                 if (r < exp( - energy_delta / k_BT))
                 {
-                    this->particles.at(i).commitSpin();
+                    this->particles[i].commitSpin();
                     m_state.energy += energy_delta;
                 }
             }

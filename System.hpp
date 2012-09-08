@@ -9,7 +9,7 @@ using namespace std;
 
 struct Interaction
 {
-    int ref;
+    Particle* ref;
     double J_ex;
     double d;
     Vec r;
@@ -25,9 +25,12 @@ struct MacroState
 class System
 {
 private:
-    vector<Particle> particles;
-    vector<vector<Interaction> > interactions;
-    vector<Vec> anisotropy;
+    Particle* particles;
+    Interaction** interactions;
+    Vec* anisotropy;
+
+    int  n;
+    int* nInteractions;
 
     double energy(Vec H);
     double energy(int i, Vec H);

@@ -59,7 +59,11 @@ System::System(ifstream& file){
     Json::Value root;
     Json::Reader reader;
     bool parsing_success = reader.parse(file, root);
-    if (!parsing_success) throw exception();
+    if (!parsing_success) {
+        cout << "Parsing not success." << endl
+             << reader.getFormattedErrorMessages() << endl;
+        throw exception();
+    }
 
     string system_descriptor = root.get(
         "system_descriptor", 
@@ -131,11 +135,70 @@ System::System(ifstream& file){
         Json::Value layers = root["layers"];
         Particle p_template;
         if (!layers.isArray() || layers.size() == 0) throw exception();
-        for (int i = 0; i < layers.size(); ++i)
+        for (int layer = 0; layer < layers.size(); ++layer)
         {
-            int w = layers[i].get("w", 1);
-            int h = layers[i].get("h", 1);
-            int l = layers[i].get("l", 1);
+            int w = layers[layer].get("w", 1).asInt();
+            int h = layers[layer].get("h", 1).asInt();
+            int l = layers[layer].get("l", 1).asInt();
+
+            Json::Value basis = layers[layer]["basis"];
+
+            if (!basis.isArray() || basis.size() == 0) throw exception();
+
+            for (int i = 0; i < w; ++i)
+            {
+                for (int j = 0; j < h; ++j)
+                {
+                    for (int k = 0; k < l; ++k)
+                    {
+                        for (int p = 0; p < basis.size(); ++p)
+                            {
+                                double relpos[] = {i, j, k};
+                                p_template.setId(basis[p]["id"].asString());
+                                p_template.moveTo(vson(basis[p]["pos"]));
+                                p_template.move(Vec(relpos, 3));
+                                p_template.move(vson(layers[layer]["origin"]));
+                                if (basis[p]["s"].isDouble()) 
+                                {
+                                    p_template.changeSpinTo(basis[p]["s"].asDouble() * rand_vec());
+                                    p_template.commitSpin();
+                                }
+                                else if (basis[p]["s"].isArray())
+                                {
+                                    p_template.changeSpinTo(vson(basis[p]["s"]));
+                                    p_template.commitSpin();
+                                }
+                                else throw exception();
+
+                                if (anisotropy_option == "global") 
+                                    this->anisotropy.push_back(vson(layers[layer]["k"]));
+                                else if (anisotropy_option == "random")
+                                {
+                                    if (basis[p].isMember("k"))
+                                        this->anisotropy.push_back(basis[p]["k"].asDouble() * rand_vec());
+                                    else
+                                        this->anisotropy.push_back(layers[layer]["k"].asDouble() * rand_vec());
+                                }
+                                else if (anisotropy_option == "explicit")
+                                    this->anisotropy.push_back(vson(basis[p]["k"]));
+
+                                if (interaction_descriptor == "smp") 
+                                    smps.push_back(basis[p]["smp"].asDouble());
+
+                                this->particles.push_back(p_template);
+
+                    #ifdef DEBUG
+                                cout << this->particles.size() << " at " 
+                                     << p_template.getPos()[0] << " "
+                                     << p_template.getPos()[1] << " "
+                                     << p_template.getPos()[2] << " "
+                                     << endl;
+                    #endif
+                            }
+                    }
+                }
+            }
+
         }
     }
     else throw exception();

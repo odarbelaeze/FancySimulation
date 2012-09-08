@@ -1,9 +1,9 @@
 CC = g++
-CFLAGS = -c -I /usr/include/jsoncpp
+CFLAGS = -c -O3 -I /usr/include/jsoncpp
 LDFLAGS = /usr/lib/libjsoncpp.a
 
 debug: clean Particle.o System.o
-	$(CC) -o FancySimulation FancySimulation.cpp Particle.o System.o $(LDFLAGS)
+	$(CC) -O3 -o FancySimulation FancySimulation.cpp Particle.o System.o $(LDFLAGS)
 
 Particle.o:
 	$(CC) $(CFLAGS) Particle.cpp

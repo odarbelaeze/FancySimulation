@@ -15,11 +15,10 @@ int main(int argc, char *argv[])
 
 	cout << endl;
 	for (int i = 0; i < 100; i++){
-		/*vector<double> energies = */s_magnetic.measureAt(B, t, 10000);
-		cout << "\n" << i + 1 << " de 100 Completados.";
+		vector<MacroState> ms = s_magnetic.measureAt(B, t, 500);
+		cout << i + 1 << " de 100 Completados." << endl;
 	}
-	// for (int i = 0; i < energies.size(); i++)
-	// 	cout << energies[i] << endl;
+    cout << endl;
 
     return 0;
 }
